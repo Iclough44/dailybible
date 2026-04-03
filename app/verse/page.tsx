@@ -2,11 +2,11 @@
 import { useEffect, useState } from 'react'
 
 const verses = [
-  'john/3/16', 'psalms/23/1', 'philippians/4/13', 'jeremiah/29/11',
-  'romans/8/28', 'proverbs/3/5', 'isaiah/40/31', 'matthew/11/28',
-  'joshua/1/9', 'romans/15/13', 'ephesians/2/8', 'hebrews/11/1',
-  'psalm/46/1', 'john/14/6', 'galatians/5/22', 'matthew/5/16',
-  'colossians/3/23', '2-timothy/1/7', 'james/1/2', 'psalm/119/105',
+  'john%203:16', 'psalm%2023:1', 'philippians%204:13', 'jeremiah%2029:11',
+  'romans%208:28', 'proverbs%203:5', 'isaiah%2040:31', 'matthew%2011:28',
+  'joshua%201:9', 'romans%2015:13', 'ephesians%202:8', 'hebrews%2011:1',
+  'psalm%2046:1', 'john%2014:6', 'galatians%205:22', 'matthew%205:16',
+  'colossians%203:23', '2+timothy%201:7', 'james%201:2', 'psalm%20119:105',
 ]
 
 function getDailyVerse() {
