@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
 
 export default function Home() {
   return (
