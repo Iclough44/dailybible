@@ -1,45 +1,82 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
+import type { User } from '@supabase/supabase-js'
 
 type Entry = {
   id: string
-  date: string
   title: string
   body: string
+  created_at: string
 }
 
 export default function JournalPage() {
+  const router = useRouter()
+  const [user, setUser] = useState<User | null>(null)
   const [entries, setEntries] = useState<Entry[]>([])
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [saved, setSaved] = useState(false)
+  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const stored = localStorage.getItem('journal-entries')
-    if (stored) setEntries(JSON.parse(stored))
+  const loadEntries = useCallback(async (userId: string) => {
+    const { data } = await supabase
+      .from('journal_entries')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+    if (data) setEntries(data)
   }, [])
 
-  function saveEntry() {
-    if (!title.trim() || !body.trim()) return
-    const newEntry: Entry = {
-      id: Date.now().toString(),
-      date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user)
+      if (data.user) {
+        loadEntries(data.user.id).then(() => setLoading(false))
+      } else {
+        setLoading(false)
+      }
+    })
+  }, [loadEntries])
+
+  async function saveEntry() {
+    if (!title.trim() || !body.trim() || !user) return
+    const { error } = await supabase.from('journal_entries').insert({
+      user_id: user.id,
       title: title.trim(),
       body: body.trim(),
+    })
+    if (!error) {
+      setTitle('')
+      setBody('')
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+      await loadEntries(user.id)
     }
-    const updated = [newEntry, ...entries]
-    setEntries(updated)
-    localStorage.setItem('journal-entries', JSON.stringify(updated))
-    setTitle('')
-    setBody('')
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
   }
 
-  function deleteEntry(id: string) {
-    const updated = entries.filter((e) => e.id !== id)
-    setEntries(updated)
-    localStorage.setItem('journal-entries', JSON.stringify(updated))
+  async function deleteEntry(id: string) {
+    await supabase.from('journal_entries').delete().eq('id', id)
+    setEntries((prev) => prev.filter((e) => e.id !== id))
+  }
+
+  if (loading) {
+    return <div className="py-16 text-center text-stone-400">Loading...</div>
+  }
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center gap-4 py-16 text-center">
+        <p className="text-stone-300 text-lg">Sign in to access your journal.</p>
+        <button
+          onClick={() => router.push('/login')}
+          className="bg-amber-400 text-stone-950 font-semibold px-6 py-2 rounded-xl hover:bg-amber-300 transition-colors"
+        >
+          Sign In
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -73,7 +110,7 @@ export default function JournalPage() {
         </button>
       </div>
 
-      {entries.length > 0 && (
+      {entries.length > 0 ? (
         <div className="flex flex-col gap-4">
           <h2 className="text-lg font-semibold text-stone-100">Past Entries</h2>
           {entries.map((entry) => (
@@ -81,7 +118,11 @@ export default function JournalPage() {
               <div className="flex justify-between items-start mb-2">
                 <div>
                   <h3 className="font-semibold text-stone-100">{entry.title}</h3>
-                  <p className="text-stone-500 text-sm">{entry.date}</p>
+                  <p className="text-stone-500 text-sm">
+                    {new Date(entry.created_at).toLocaleDateString('en-US', {
+                      year: 'numeric', month: 'long', day: 'numeric',
+                    })}
+                  </p>
                 </div>
                 <button
                   onClick={() => deleteEntry(entry.id)}
@@ -94,9 +135,7 @@ export default function JournalPage() {
             </div>
           ))}
         </div>
-      )}
-
-      {entries.length === 0 && (
+      ) : (
         <p className="text-stone-500 text-center py-8">No entries yet. Write your first reflection above.</p>
       )}
     </div>
