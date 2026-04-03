@@ -7,7 +7,8 @@ export async function GET(req: NextRequest) {
   const apiKey = process.env.ESV_API_KEY
   if (!apiKey) return NextResponse.json({ error: 'ESV API key not configured' }, { status: 500 })
 
-  const url = `https://api.esv.org/v3/passage/text/?q=${encodeURIComponent(ref)}&include-headings=true&include-footnotes=false&include-verse-numbers=true&include-short-copyright=false&include-passage-references=true`
+  const short = req.nextUrl.searchParams.get('short') === 'true'
+  const url = `https://api.esv.org/v3/passage/text/?q=${encodeURIComponent(ref)}&include-headings=${!short}&include-footnotes=false&include-verse-numbers=${!short}&include-short-copyright=false&include-passage-references=false`
 
   const res = await fetch(url, {
     headers: { Authorization: `Token ${apiKey}` },

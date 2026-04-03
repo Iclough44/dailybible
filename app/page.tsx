@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
 const verses = [
-  'john%203:16', 'psalm%2023:1', 'philippians%204:13', 'jeremiah%2029:11',
-  'romans%208:28', 'proverbs%203:5', 'isaiah%2040:31', 'matthew%2011:28',
-  'joshua%201:9', 'romans%2015:13', 'ephesians%202:8', 'hebrews%2011:1',
-  'psalm%2046:1', 'john%2014:6', 'galatians%205:22', 'matthew%205:16',
-  'colossians%203:23', '2+timothy%201:7', 'james%201:2', 'psalm%20119:105',
+  'John 3:16', 'Psalm 23:1-6', 'Philippians 4:13', 'Jeremiah 29:11',
+  'Romans 8:28', 'Proverbs 3:5-6', 'Isaiah 40:31', 'Matthew 11:28-30',
+  'Joshua 1:9', 'Romans 15:13', 'Ephesians 2:8-9', 'Hebrews 11:1',
+  'Psalm 46:1', 'John 14:6', 'Galatians 5:22-23', 'Matthew 5:16',
+  'Colossians 3:23', '2 Timothy 1:7', 'James 1:2-4', 'Psalm 119:105',
 ]
 
 function getDailyIndex() {
@@ -21,9 +21,9 @@ export default function Home() {
 
   useEffect(() => {
     const ref = verses[getDailyIndex() % verses.length]
-    fetch(`https://bible-api.com/${ref}`)
+    fetch(`/api/passage?ref=${encodeURIComponent(ref)}&short=true`)
       .then((r) => r.json())
-      .then((d) => { setData(d); setLoading(false) })
+      .then((d) => { setData({ text: d.passages?.[0]?.trim() || '', reference: ref }); setLoading(false) })
       .catch(() => setLoading(false))
   }, [])
 
