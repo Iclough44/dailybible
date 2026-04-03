@@ -1,16 +1,19 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-
-const tabs = [
-  { href: '/',        label: 'Home',    icon: '🏠' },
-  { href: '/verse',   label: 'Verse',   icon: '📖' },
-  { href: '/plans',   label: 'Plans',   icon: '📅' },
-  { href: '/journal', label: 'Journal', icon: '✍️' },
-]
+import { useLanguage } from '@/lib/language'
 
 export default function BottomNav() {
   const pathname = usePathname()
+  const { t } = useLanguage()
+
+  const tabs = [
+    { href: '/',         label: t('home'),    icon: '🏠' },
+    { href: '/verse',    label: t('verse'),   icon: '📖' },
+    { href: '/plans',    label: t('plans'),   icon: '📅' },
+    { href: '/journal',  label: t('journal'), icon: '✍️' },
+    { href: '/account',  label: t('account'), icon: '👤' },
+  ]
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-stone-900 border-t border-stone-800 z-50">
@@ -33,8 +36,7 @@ export default function BottomNav() {
           )
         })}
       </div>
-      {/* iPhone home indicator spacing */}
-      <div className="h-safe-area-inset-bottom bg-stone-900" style={{ height: 'env(safe-area-inset-bottom)' }} />
+      <div className="bg-stone-900" style={{ height: 'env(safe-area-inset-bottom)' }} />
     </nav>
   )
 }

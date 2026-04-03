@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import BottomNav from '@/components/BottomNav'
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
+import { LanguageProvider } from '@/lib/language'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -32,11 +33,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={`${inter.className} bg-stone-950 text-stone-100 min-h-screen`}>
-        <ServiceWorkerRegister />
-        <main className="max-w-lg mx-auto px-4 pt-6 pb-24">
-          {children}
-        </main>
-        <BottomNav />
+        <LanguageProvider>
+          <ServiceWorkerRegister />
+          <main className="max-w-lg mx-auto px-4 pt-6 pb-24">
+            {children}
+          </main>
+          <BottomNav />
+        </LanguageProvider>
       </body>
     </html>
   )
